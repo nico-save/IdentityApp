@@ -9,7 +9,7 @@ export class SharedService {
   bsModalRef?: BsModalRef;
   constructor(private modalService: BsModalService) {}
 
-  showNofification(isSuccess: boolean, title: string, message: string) {
+  showNotification(isSuccess: boolean, title: string, message: string) {
     const initialState: ModalOptions = {
       initialState: {
         isSuccess,

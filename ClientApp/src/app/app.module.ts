@@ -13,6 +13,8 @@ import { ValidationMessagesComponent } from './shared/components/errors/validati
 import { NotFoundComponent } from './shared/components/errors/not-found/not-found.component';
 import { SharedModule } from './shared/shared.module';
 import { PlayComponent } from './play/play.component';
+import { JwtInterceptor } from './shared/interceptors/jwt.interceptor';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,13 @@ import { PlayComponent } from './play/play.component';
     SharedModule,
     BrowserAnimationsModule,
   ],
-  providers: [],
+  providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: JwtInterceptor,
+      multi: true,
+    },
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
