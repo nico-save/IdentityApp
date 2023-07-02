@@ -1,0 +1,36 @@
+import { NgModule } from '@angular/core';
+import { RouterModule, Routes } from '@angular/router';
+import { HomeComponent } from './home/home.component';
+import { NotFoundComponent } from './shared/components/errors/not-found/not-found.component';
+import { PlayComponent } from './play/play.component';
+
+const routes: Routes = [
+  {
+    path: '',
+    component: HomeComponent,
+  },
+  //  implementing lazy loading
+  {
+    path: 'account',
+    loadChildren: () =>
+      import('./account/account.module').then((module) => module.AccountModule),
+  },
+  {
+    path: 'not-found',
+    component: NotFoundComponent,
+  },
+  {
+    path: 'play',
+    component: PlayComponent,
+  },
+  {
+    path: '**',
+    component: NotFoundComponent,
+  },
+];
+
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+  exports: [RouterModule],
+})
+export class AppRoutingModule {}
