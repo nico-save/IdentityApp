@@ -46,7 +46,7 @@
             ">Email is required</span>
           <span class="text-danger" *ngIf="
               (submitted &&
-                registerForm.get('lastName')?.hasError('pattern'))
+                registerForm.get('email')?.hasError('pattern'))
             ">Invalid email address</span>
         </div>
         <div class="form-floating mb-3">
