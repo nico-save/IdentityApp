@@ -1,10 +1,21 @@
-import { Component, OnInit } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  Inject,
+  OnInit,
+  Renderer2,
+  ViewChild,
+} from '@angular/core';
 import { AccountService } from '../account.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { SharedService } from 'src/app/shared/shared.service';
 import { Router } from '@angular/router';
 import { take } from 'rxjs';
 import { User } from 'src/app/shared/models/account/user';
+import { CredentialResponse } from 'google-one-tap';
+import jwt_decode from 'jwt-decode';
+import { DOCUMENT } from '@angular/common';
+declare const FB: any;
 
 @Component({
   selector: 'app-register',
@@ -12,6 +23,8 @@ import { User } from 'src/app/shared/models/account/user';
   styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent implements OnInit {
+  @ViewChild('googleButton', { static: true }) googleButton: ElementRef =
+    new ElementRef({});
   registerForm: FormGroup = new FormGroup({});
   submitted: boolean = false;
   errorMessages: string[] = [];
@@ -20,7 +33,9 @@ export class RegisterComponent implements OnInit {
     private accountService: AccountService,
     private sharedService: SharedService,
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private renderer2: Renderer2,
+    @Inject(DOCUMENT) private document: Document
   ) {
     this.accountService.user$.pipe(take(1)).subscribe({
       next: (user: User | null) => {
@@ -33,6 +48,15 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit(): void {
     this.initializeForm();
+    this.initializeGoogleButton();
+  }
+
+  ngAfterViewInit() {
+    const script1 = this.renderer2.createElement('script');
+    script1.src = 'https://accounts.google.com/gsi/client';
+    script1.async = true;
+    script1.defer = true;
+    this.renderer2.appendChild(this.document.body, script1);
   }
 
   initializeForm() {
@@ -93,5 +117,50 @@ export class RegisterComponent implements OnInit {
         },
       });
     }
+  }
+
+  registerWithFacebook() {
+    FB.login(async (fbResult: any) => {
+      if (fbResult.authResponse) {
+        const accessToken = fbResult.authResponse.accessToken;
+        const userId = fbResult.authResponse.userID;
+        this.router.navigateByUrl(
+          `/account/register/third-party/facebook?access_token=${accessToken}&userId=${userId}`
+        );
+      } else {
+        this.sharedService.showNotification(
+          false,
+          'failed',
+          'Unable to register with your facebook account'
+        );
+      }
+    });
+  }
+
+  private initializeGoogleButton() {
+    (window as any).onGoogleLibraryLoad = () => {
+      //@ts-ignore
+      google.accounts.id.initialize({
+        client_id:
+          '191272399831-kj8tqf7iirg7vhamrrg1vdnkfqhbmo0b.apps.googleusercontent.com',
+        callback: this.googleCallback.bind(this),
+        auto_select: false,
+        cancel_on_tap_outside: true,
+      });
+      //@ts-ignore
+      google.accounts.id.renderButton(this.googleButton.nativeElement, {
+        size: 'medium',
+        shape: 'rectangular',
+        text: 'signup_with',
+        logo_alignment: 'center',
+      });
+    };
+  }
+
+  private async googleCallback(response: CredentialResponse) {
+    const decodedToken: any = jwt_decode(response.credential);
+    this.router.navigateByUrl(
+      `/account/register/third-party/google?access_token=${response.credential}&userId=${decodedToken.sub}`
+    );
   }
 }
