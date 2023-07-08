@@ -121,6 +121,7 @@ namespace Api.Controllers
         {
             return Ok("Manager email and wilson surname policy");
         }
+
         [HttpGet("vip-policy")]
         [Authorize(policy: "VIPPolicy")]
         public IActionResult VIPPolicy()

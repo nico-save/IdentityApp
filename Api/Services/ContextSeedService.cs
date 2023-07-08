@@ -39,8 +39,8 @@ namespace Api.Services
                 {
                     FirstName = "admin",
                     LastName = "jackson",
-                    UserName = "admin@example.com",
-                    Email = "admin@example.com",
+                    UserName = SD.AdminUserName,
+                    Email = SD.AdminUserName,
                     EmailConfirmed = true,
                 };
 
