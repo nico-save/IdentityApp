@@ -1,25 +1,30 @@
 ﻿using Api.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Api.Services
 {
     public class JWTService
     {
         private readonly IConfiguration _config;
+        private readonly UserManager<User> userManager;
         private readonly SymmetricSecurityKey _jwtKey;
-        public JWTService(IConfiguration config)
+        public JWTService(IConfiguration config, UserManager<User> userManager)
         {
             _config = config;
+            this.userManager = userManager;
             _jwtKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JWT:Key"]));
 
         }
-        public string CreateJWT(User user)
+        public async Task<string> CreateJWT(User user)
         {
             var userClaims = new List<Claim>
             {
@@ -29,6 +34,10 @@ namespace Api.Services
                 new Claim(ClaimTypes.Surname, user.LastName),
 
             };
+
+            var roles = await this.userManager.GetRolesAsync(user);
+            userClaims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+
             var credentials = new SigningCredentials(_jwtKey, SecurityAlgorithms.HmacSha256Signature);
             var tokenDescriptor = new SecurityTokenDescriptor
             {
