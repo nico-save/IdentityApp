@@ -11,7 +11,7 @@ namespace Api.DTOs.Admin
 
         public string Firstname { get; set; }
 
-        public string LastName { get; set; }
+        public string Lastname { get; set; }
 
         public bool IsLocked { get; set; }
 

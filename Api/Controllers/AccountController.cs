@@ -47,6 +47,10 @@ namespace Api.Controllers
         public async Task<ActionResult<UserDto>> RefreshUserToken()
         {
             var user = await _userManager.FindByNameAsync(User.FindFirst(ClaimTypes.Email)?.Value);
+            if(await _userManager.IsLockedOutAsync(user))
+            {
+                return Unauthorized("You have been locked out");
+            }
             return await CreateApplicationUserDto(user);
         }
 

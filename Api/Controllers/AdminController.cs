@@ -38,7 +38,7 @@ namespace Api.Controllers
                     Id = member.Id,
                     Username = member.UserName,
                     Firstname = member.FirstName,
-                    LastName = member.LastName,
+                    Lastname = member.LastName,
                     DateCreated = member.DateCreated,
                     IsLocked = this.userManager.IsLockedOutAsync(member).GetAwaiter().GetResult(),
                     Roles = this.userManager.GetRolesAsync(member).GetAwaiter().GetResult()
